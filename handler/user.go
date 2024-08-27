@@ -127,7 +127,7 @@ func (h *userHandler) CheckEmailAvailibility(c *gin.Context) {
 }
 
 func (h *userHandler) UploadAvatar(c *gin.Context) {
-	file, err := c.FormFile("Avatar")
+	file, err := c.FormFile("avatar")
 	if err != nil {
 		data := gin.H{"is_uploaded": false}
 		response := helper.APIResponse("Failed to upload images", http.StatusBadRequest, "error", data)
@@ -135,7 +135,8 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	userID := 1
+	currentUser := c.MustGet("currentUser").(user.User)
+	userID := currentUser.ID
 
 	path := fmt.Sprintf("images/%d-%s", userID, file.Filename)
 
@@ -154,7 +155,7 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 	}
 
-	data := gin.H{"is_uploaded": false}
+	data := gin.H{"is_uploaded": true}
 	response := helper.APIResponse("Avatar Successfully Uploaded", http.StatusOK, "success", data)
 	c.JSON(http.StatusOK, response)
 
