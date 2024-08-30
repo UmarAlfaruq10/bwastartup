@@ -12,7 +12,7 @@ type Campaign struct {
 	ShortDescription string
 	Description      string
 	Perks            string
-	BackerCount      int
+	BeckerCount      int
 	GoalAmount       int
 	CurrentAmount    int
 	Slug             string
