@@ -12,18 +12,14 @@ type Service interface {
 	GetCampaignByID(input GetCampaignDetailInput) (Campaign, error)
 	CreateCampaign(input CreateCampaignInput) (Campaign, error)
 	Update(inputID GetCampaignDetailInput, inputData CreateCampaignInput) (Campaign, error)
+	SaveCampaignImage(input CreateCampaignImageInput, fileLocation string) (CampaignImages, error)
 }
 
 type service struct {
 	repository Repository
 }
 
-// UpdateCampaign implements Service
-func (*service) UpdateCampaign(inputID GetCampaignDetailInput, inputData CreateCampaignInput) (Campaign, error) {
-	panic("unimplemented")
-}
-
-func NewServcie(repository Repository) *service {
+func NewService(repository Repository) *service {
 	return &service{repository}
 }
 
@@ -94,4 +90,37 @@ func (s *service) Update(inputID GetCampaignDetailInput, inputData CreateCampaig
 		return updatedCampaign, err
 	}
 	return updatedCampaign, nil
+}
+
+func (s *service) SaveCampaignImage(input CreateCampaignImageInput, fileLocation string) (CampaignImages, error) {
+	campaign, err := s.repository.FindByID(input.CampaignID)
+	if err != nil {
+		return CampaignImages{}, err
+	}
+
+	if campaign.UserID != input.User.ID {
+		return CampaignImages{}, errors.New("Not an owner of the campaign")
+	}
+
+	isPrimary := 0
+	if input.IsPrimary {
+		isPrimary = 1
+
+		_, err := s.repository.MarkAllImage(input.CampaignID)
+		if err != nil {
+			return CampaignImages{}, err
+		}
+	}
+
+	campaignImages := CampaignImages{}
+	campaignImages.CampaignID = input.CampaignID
+	campaignImages.IsPrimary = isPrimary
+	campaignImages.FileName = fileLocation
+
+	newCampaignImage, err := s.repository.CreateImage(campaignImages)
+	if err != nil {
+		return newCampaignImage, err
+	}
+	return newCampaignImage, nil
+
 }

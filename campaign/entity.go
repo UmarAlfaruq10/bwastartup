@@ -18,7 +18,7 @@ type Campaign struct {
 	Slug             string
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
-	CampaignImages   []CampaignImages
+	CampaignImage    []CampaignImages
 	User             user.User
 }
 
