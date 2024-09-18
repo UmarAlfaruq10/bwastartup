@@ -8,7 +8,7 @@ type Repository interface {
 	FindByID(ID int) (Campaign, error)
 	Save(campaign Campaign) (Campaign, error)
 	Update(campaign Campaign) (Campaign, error)
-	CreateImage(CampaignImage CampaignImages) (CampaignImages, error)
+	CreateImage(CampaignImage CampaignImage) (CampaignImage, error)
 	MarkAllImage(campaignID int) (bool, error)
 }
 
@@ -23,7 +23,7 @@ func NewRespository(db *gorm.DB) *repository {
 func (r *repository) FindAll() ([]Campaign, error) {
 	var campaigns []Campaign
 
-	err := r.db.Preload("CampaignImage", "campaign_images.is_primary = 1").Find(&campaigns).Error
+	err := r.db.Preload("CampaignImages", "campaign_images.is_primary = 1").Find(&campaigns).Error
 
 	if err != nil {
 		return campaigns, err
@@ -34,7 +34,7 @@ func (r *repository) FindAll() ([]Campaign, error) {
 func (r *repository) FindByUserID(UserID int) ([]Campaign, error) {
 	var campaigns []Campaign
 
-	err := r.db.Where("user_id = ?", UserID).Preload("CampaignImage", "campaign_images.is_primary = 1").Find(&campaigns).Error
+	err := r.db.Where("user_id = ?", UserID).Preload("CampaignImages", "campaign_images.is_primary = 1").Find(&campaigns).Error
 	if err != nil {
 		return campaigns, err
 	}
@@ -44,7 +44,7 @@ func (r *repository) FindByUserID(UserID int) ([]Campaign, error) {
 func (r *repository) FindByID(ID int) (Campaign, error) {
 	var campaigns Campaign
 
-	err := r.db.Preload("User").Preload("CampaignImage").Where("id = ?", ID).Find(&campaigns).Error
+	err := r.db.Preload("User").Preload("CampaignImages").Where("id = ?", ID).Find(&campaigns).Error
 	if err != nil {
 		return campaigns, err
 	}
@@ -69,7 +69,7 @@ func (r *repository) Update(campaign Campaign) (Campaign, error) {
 	return campaign, nil
 }
 
-func (r *repository) CreateImage(campaignImages CampaignImages) (CampaignImages, error) {
+func (r *repository) CreateImage(campaignImages CampaignImage) (CampaignImage, error) {
 	err := r.db.Create(&campaignImages).Error
 
 	if err != nil {
@@ -80,7 +80,7 @@ func (r *repository) CreateImage(campaignImages CampaignImages) (CampaignImages,
 
 func (r *repository) MarkAllImage(campaignID int) (bool, error) {
 
-	err := r.db.Model(&CampaignImages{}).Where("campaign_id = ?", campaignID).Update("is_primary", false).Error
+	err := r.db.Model(&CampaignImage{}).Where("campaign_id = ?", campaignID).Update("is_primary", false).Error
 
 	if err != nil {
 		return false, err
